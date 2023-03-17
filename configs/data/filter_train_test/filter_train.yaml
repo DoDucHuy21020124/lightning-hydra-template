@@ -1,5 +1,5 @@
 _target_: src.data.components.filter_dataset.FilterDataset
-data_dir: ${paths.data_dir}/ibug_300W_large_face_landmark_dataset/labels_ibug_300W.xml
+data_dir: ${paths.data_dir}
 width: 224
 height: 224
 train: True

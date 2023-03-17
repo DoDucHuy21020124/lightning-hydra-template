@@ -5,7 +5,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 import albumentations
-from omegaconf import DictConfig
+
 
 class ImageTransform():
     def __init__(
@@ -14,7 +14,6 @@ class ImageTransform():
         transform: albumentations.Compose = None
     ):
         self.transform = transform
-        self.box = None
         self.phase = phase
 
     def __call__(
@@ -25,12 +24,11 @@ class ImageTransform():
         keypoints: List[float] = None,
         keypoints_classes: List[str] = None
     ):
-        self.box = box
         image_transformed, box_transformed, keypoints_transformed= None, None, None
-        if self.phase == 'train':
+        if self.phase == 'train' or self.phase == 'val':
             transformed = self.transform(
                 image = x,
-                bboxes = box,
+                bboxes = [box],
                 bbox_classes = bbox_classes,
                 keypoints = keypoints,
                 keypoints_classes = keypoints_classes
@@ -38,12 +36,13 @@ class ImageTransform():
             image_transformed = transformed['image']
             box_transformed = transformed['bboxes']
             keypoints_transformed = transformed['keypoints']
-        elif self.phase == 'val':
-            transformed = self.transform(image = x)
-            image_transformed = transformed['image']
+        # elif self.phase == 'val':
+        #     transformed = self.transform(image = x)
+        #     image_transformed = transformed['image']
         else:
             transformed = self.transform(image = x)
-            image_transformed = self.transform(image = x)
+            image_transformed = transformed['image']
+        image_transformed = image_transformed / 255.0
         return image_transformed, box_transformed, keypoints_transformed
     
 if __name__ == '__main__':
