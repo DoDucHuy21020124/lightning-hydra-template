@@ -1,11 +1,30 @@
 _target_: src.data.filter_datamodule.FilterDataModule
-data_dir: ${paths.data_dir}
+#data_dir: C:\Users\Admin\Documents\LightningHydraTEst\lightning-hydra-template\data\ibug_300W_large_face_landmark_dataset\
+data_dir: ${paths.data_dir}/ibug_300W_large_face_landmark_dataset/
+defaults:
+  - data_train: filter_train.yaml
+  - data_test: filter_test.yaml
+  - train_transform: train_transform.yaml
+  - val_transform: val_transform.yaml
+  - test_transform: test_transform.yaml
+  - _self_
+
 batch_size: 64
 train_val_test_split: [64, 64]
 num_workers: 4
 pin_memory: True
-data_train: filter_train_test/filter_train.yaml
-data_test: filter_train_test/filter_test.yaml
-train_transform: transform/filter_transform/train_transform.yaml
-val_transform: transform/filter_transform/val_transform.yaml
-test_transform: transform/filter_transform/test_transform.yaml
+
+width: 224
+height: 224
+
+# data_train: filter_train_test/filter_train.yaml
+# data_test: filter_train_test/filter_test.yaml
+# train_transform: transform/filter_transform/train_transform.yaml
+# val_transform: transform/filter_transform/val_transform.yaml
+# test_transform: transform/filter_transform/test_transform.yaml
+
+# data_train: filter_train.yaml
+# data_test: filter_test.yaml
+# train_transform: train_transform.yaml
+# val_transform: val_transform.yaml
+# test_transform: test_transform.yaml

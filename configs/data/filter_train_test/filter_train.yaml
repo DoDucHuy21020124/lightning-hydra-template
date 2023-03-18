@@ -1,6 +1,0 @@
-_target_: src.data.components.filter_dataset.FilterDataset
-data_dir: ${paths.data_dir}
-width: 224
-height: 224
-train: True
-num_of_keypoints: 68

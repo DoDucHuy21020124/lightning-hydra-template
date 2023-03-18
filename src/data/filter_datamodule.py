@@ -13,6 +13,7 @@ import omegaconf
 import components.utils_dataset as util
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+import albumentations
 
 class FilterDataModule(LightningDataModule):
     """Example of LightningDataModule for MNIST dataset.
@@ -49,11 +50,13 @@ class FilterDataModule(LightningDataModule):
         batch_size: int = 64,
         num_workers: int = 8,
         pin_memory: bool = False,
-        data_train: str = None,
-        data_test: str = None,
-        train_transform: str = None,
-        val_transform: str = None,
-        test_transform: str = None
+        width: int = 224,
+        height: int = 224,
+        data_train: FilterDataset = None,
+        data_test: FilterDataset = None,
+        train_transform: albumentations.Compose = None,
+        val_transform: albumentations.Compose = None,
+        test_transform: albumentations.Compose = None
     ):
         super().__init__()
         # def instantiate_data(file_path: str):
@@ -74,11 +77,11 @@ class FilterDataModule(LightningDataModule):
         self.save_hyperparameters(logger=False)
 
         # data transformations
-        self.train_transform = util.instantiate_transform(train_transform)
-        self.val_transform = util.instantiate_transform(val_transform)
-        self.test_transform = util.instantiate_transform(test_transform)
+        # self.train_transform = util.instantiate_transform(train_transform)
+        # self.val_transform = util.instantiate_transform(val_transform)
+        # self.test_transform = util.instantiate_transform(test_transform)
 
-        self.train_set: Optional[FilterDataset] = util.instantiate_data(data_train)
+        # self.train_set: Optional[FilterDataset] = util.instantiate_data(data_train)
 
         self.data_train = None
         self.data_val = None
@@ -109,32 +112,50 @@ class FilterDataModule(LightningDataModule):
         #     lengths=self.hparams.train_val_test_split,
         #     generator=torch.Generator().manual_seed(42),
         # )
-        train, val = train_test_split(
-            [i for i in range(len(self.train_set))],
-            train_size = self.hparams.train_val_test_split[0],
-            test_size = self.hparams.train_val_test_split[1],
-            random_state= 42,
-            shuffle = True
-        )
-        self.train_set.train = True
-        self.train_set.transform = self.val_transform
-        self.data_val = torch.utils.data.Subset(self.train_set, val)
-        print(self.data_val.transform)
 
-        self.train_set.train = True
-        self.train_set.transform = self.train_transform
-        self.data_train = torch.utils.data.Subset(self.train_set, train)
-        self.data_train.transform = self.train_transform
+        # train, val = train_test_split(
+        #     [i for i in range(len(self.train_set))],
+        #     train_size = self.hparams.train_val_test_split[0],
+        #     test_size = self.hparams.train_val_test_split[1],
+        #     random_state= 42,
+        #     shuffle = True
+        # )
+
+        # self.train_set.train = True
+        # self.train_set.transform = self.val_transform
+        # self.data_val = torch.utils.data.Subset(self.train_set, val)
+        # print(self.data_val.transform)
+
+        # self.train_set.train = True
+        # self.train_set.transform = self.train_transform
+        # self.data_train = torch.utils.data.Subset(self.train_set, train)
+        # self.data_train.transform = self.train_transform
 
         # for x, y in self.data_val:
         #     util.draw_image_with_keypoints(x.numpy().transpose(1, 2, 0), y.reshape(-1, 2), 224, 224, True)
         #     plt.show()
-
-        print(self.data_val)
-        print(self.data_train)
         
 
         #self.data_test.transform = self.test_transform
+
+        if not self.data_train and not self.data_val and not self.data_test:
+            data_train = self.hparams.data_train(data_dir = self.hparams.data_dir)
+            #data_train = self.hparams.data_train
+            #data_test = self.hparams.data_test
+            data_train, data_val = random_split(
+                dataset=data_train,
+                lengths=self.hparams.train_val_test_split,
+                generator=torch.Generator().manual_seed(42),
+            )
+            self.data_train = ImageTransform(
+                data_train, self.hparams.width, self.hparams.height, self.hparams.train_transform
+            )
+            self.data_val = ImageTransform(
+                data_val, self.hparams.width, self.hparams.height, self.hparams.val_transform
+            )
+            # self.data_test = ImageTransform(
+            #     data_test, self.hparams.width, self.hparams.height, self.hparams.test_transform
+            # )
 
     def train_dataloader(self):
         return DataLoader(
@@ -184,13 +205,38 @@ if __name__ == "__main__":
     #from components import utils_dataset
 
     root = pyrootutils.setup_root(__file__, pythonpath=True)
-    cfg = omegaconf.OmegaConf.load(root / "configs" / "data" / "filter.yaml")
-    cfg.data_dir = str(root / "data")
-    print(cfg.data_dir)
-    filter_data = hydra.utils.instantiate(cfg)
-    filter_data.prepare_data()
-    filter_data.setup()
-    print(filter_data.data_train.__len__())
+    config_path = str(root / 'configs'/ 'data')
+    data_dir = root / 'data/ibug_300W_large_face_landmark_dataset/'
+    @hydra.main(config_path=config_path, config_name = 'filter.yaml')
+    def main(cfg: DictConfig):
+        cfg.data_dir = data_dir
+        datamodule = hydra.utils.instantiate(cfg)
+        datamodule.prepare_data()
+        datamodule.setup()
+        # x, y = datamodule.data_train[3]
+        # print(x)
+        # print(y)
+        dataloader = datamodule.train_dataloader()
+        iterbatch = iter(dataloader)
+        x, y = next(iterbatch)
+        ImageTransform.draw_batch_image(
+            images = x,
+            labels = y,
+            width = x.shape[2],
+            height = x.shape[3],
+            normalize = True
+        )
+        plt.show()
+    main()
+
+    # root = pyrootutils.setup_root(__file__, pythonpath=True)
+    # cfg = omegaconf.OmegaConf.load(root / "configs" / "data" / "filter.yaml")
+    # cfg.data_dir = str(root / "data")
+    # print(cfg.data_dir)
+    # filter_data = hydra.utils.instantiate(cfg)
+    # filter_data.prepare_data()
+    # filter_data.setup()
+    # print(filter_data.data_train.__len__())
 
     # x, y = None, None
     # i = 0
@@ -216,12 +262,12 @@ if __name__ == "__main__":
     # print('labels:', labels)
     # util.draw_batch_image(images, labels, 224, 224, True)
 
-    val_loader = filter_data.val_dataloader()
-    print(val_loader)
-    batch_iterator = iter(val_loader)
-    print(batch_iterator)
-    images, labels = next(batch_iterator)
-    print(images.size(), labels.size())
-    print('labels:', labels)
-    util.draw_batch_image(images, labels, 224, 224, True)
+    # val_loader = filter_data.val_dataloader()
+    # print(val_loader)
+    # batch_iterator = iter(val_loader)
+    # print(batch_iterator)
+    # images, labels = next(batch_iterator)
+    # print(images.size(), labels.size())
+    # print('labels:', labels)
+    # util.draw_batch_image(images, labels, 224, 224, True)
     

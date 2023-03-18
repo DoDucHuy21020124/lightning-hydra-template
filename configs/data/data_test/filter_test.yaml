@@ -1,0 +1,6 @@
+_target_: src.data.components.filter_dataset.FilterDataset
+#data_dir: C:\Users\Admin\Documents\LightningHydraTEst\lightning-hydra-template\data\ibug_300W_large_face_landmark_dataset\
+#data_dir: ${data_dir}
+_partial_: True
+xml_file: labels_ibug_300W_test.xml
+num_of_keypoints: 68
