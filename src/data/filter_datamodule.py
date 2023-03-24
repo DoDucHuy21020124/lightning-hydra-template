@@ -140,7 +140,7 @@ class FilterDataModule(LightningDataModule):
         if not self.data_train and not self.data_val and not self.data_test:
             data_train = self.hparams.data_train(data_dir = self.hparams.data_dir)
             #data_train = self.hparams.data_train
-            #data_test = self.hparams.data_test
+            data_test = self.hparams.data_test(data_dir = self.hparams.data_dir)
             data_train, data_val = random_split(
                 dataset=data_train,
                 lengths=self.hparams.train_val_test_split,
@@ -152,9 +152,9 @@ class FilterDataModule(LightningDataModule):
             self.data_val = ImageTransform(
                 data_val, self.hparams.width, self.hparams.height, self.hparams.val_transform
             )
-            # self.data_test = ImageTransform(
-            #     data_test, self.hparams.width, self.hparams.height, self.hparams.test_transform
-            # )
+            self.data_test = ImageTransform(
+                data_test, self.hparams.width, self.hparams.height, self.hparams.test_transform
+            )
 
     def train_dataloader(self):
         return DataLoader(
