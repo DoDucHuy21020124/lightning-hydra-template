@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 
 import albumentations
 import albumentations.pytorch
-from components import filter_dataset
+from src.data.components import filter_dataset
 import torch
 import math
 
