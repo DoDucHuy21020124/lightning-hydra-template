@@ -5,7 +5,7 @@ from PIL import Image
 import numpy as np
 import albumentations
 import matplotlib.pyplot as plt
-import utils_dataset
+from src.data.components import utils_dataset
 import torch
 from matplotlib.patches import Rectangle
 
