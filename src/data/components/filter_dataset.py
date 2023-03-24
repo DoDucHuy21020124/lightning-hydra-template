@@ -5,7 +5,7 @@ from PIL import Image
 import numpy as np
 import albumentations
 import matplotlib.pyplot as plt
-from src.data.components import utils_dataset
+import utils_dataset
 import torch
 from matplotlib.patches import Rectangle
 
@@ -26,14 +26,15 @@ class FilterDataset(data.Dataset):
 
         self.df = pd.DataFrame(data)
 
-        self.x = self.df['file_path'][:128]
+        self.x = self.df['file_path']
+        print(len(self.x))
 
         self.y = list()
-        for i in range(128):
+        for i in range(len(self.x)):
             temp = list()
             for j in range(self.num_of_keypoints):
-                temp.append(self.df.iloc[i][str(j)][0])
-                temp.append(self.df.iloc[i][str(j)][1])
+                temp.append(self.df.iloc[i].at[str(j)][0])
+                temp.append(self.df.iloc[i].at[str(j)][1])
             temp = torch.Tensor(temp)
             temp = temp.reshape(-1, 2)
             self.y.append(temp)
