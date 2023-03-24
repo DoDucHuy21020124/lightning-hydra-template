@@ -5,9 +5,10 @@ from PIL import Image
 import numpy as np
 import albumentations
 import matplotlib.pyplot as plt
-from src.data.components import utils_dataset
+import utils_dataset
 import torch
 from matplotlib.patches import Rectangle
+import os
 
 class FilterDataset(data.Dataset):
     def __init__(
@@ -20,7 +21,7 @@ class FilterDataset(data.Dataset):
         self.num_of_keypoints = num_of_keypoints
         self.data_dir = data_dir
         
-        image_xml = utils_dataset.get_imagexml(str(self.data_dir) + '/' + xml_file)
+        image_xml = utils_dataset.get_imagexml(os.path.join(self.data_dir, xml_file))
         data = utils_dataset.init_dataframe(self.num_of_keypoints)
         data = utils_dataset.get_data(image_xml, data)
 
@@ -49,7 +50,7 @@ class FilterDataset(data.Dataset):
 
     def __getitem__(self, index: int):
         file_path, label, box = self.x[index], self.y[index], self.box[index]
-        image = np.asarray(Image.open(str(self.data_dir) + '/' + file_path))
+        image = np.asarray(Image.open(os.path.join(self.data_dir, file_path)))
         x_min = int(box[0])
         y_min = int(box[1])
         x_max = int(box[0] + box[2])

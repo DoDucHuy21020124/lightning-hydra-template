@@ -1,6 +1,6 @@
 _target_: src.data.filter_datamodule.FilterDataModule
 #data_dir: C:\Users\Admin\Documents\LightningHydraTEst\lightning-hydra-template\data\ibug_300W_large_face_landmark_dataset\
-data_dir: ${paths.data_dir}/ibug_300W_large_face_landmark_dataset/
+data_dir: ${paths.data_dir}/ibug_300W_large_face_landmark_dataset
 defaults:
   - data_train: filter_train.yaml
   - data_test: filter_test.yaml
