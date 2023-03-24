@@ -9,7 +9,7 @@ import omegaconf
 import hydra
 import pyrootutils
 
-def init_dataframe(part: int) -> dict[str, List]:
+def init_dataframe(part: int):
     data = {
         'file_path': list(),
         'box': list()
@@ -18,7 +18,7 @@ def init_dataframe(part: int) -> dict[str, List]:
         data[str(i)] = list()
     return data
 
-def get_imagexml(file_path: str) -> List:
+def get_imagexml(file_path: str):
     data_xml = None
     with open(file_path, 'r') as f:
         data_xml = f.read()
@@ -26,7 +26,7 @@ def get_imagexml(file_path: str) -> List:
     image_xml = data_xml.find_all('image')
     return image_xml
 
-def get_data(image_xml: List, data: dict) -> dict[str, List]:
+def get_data(image_xml: List, data: dict):
     for i in range(0, len(image_xml)):
         file_path = image_xml[i].get('file')
         data['file_path'].append(file_path)
