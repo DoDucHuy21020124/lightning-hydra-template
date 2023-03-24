@@ -1,0 +1,4 @@
+_target_: src.data.components.filter_dataset.FilterDataset
+_partial_: true
+xml_file: labels_ibug_300W.xml
+num_of_keypoints: 68
