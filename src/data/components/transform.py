@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 
 import albumentations
 import albumentations.pytorch
-import filter_dataset
+from components import filter_dataset
 import torch
 import math
 
@@ -45,7 +45,7 @@ class ImageTransform(Dataset):
             image = image,
             bboxes = [box],
             bbox_classes = self.bbox_classes,
-            keypoints = label.reshape(-1, 2),
+            keypoints = label,
             keypoints_classes = self.keypoints_classes
         )
         image = transformed['image']
@@ -55,9 +55,9 @@ class ImageTransform(Dataset):
             label.append(keypoints[i][0])
             label.append(keypoints[i][1])
         label = torch.Tensor(label)
-        for i in range(1, label.shape[0], 2):
-            label[i - 1] = label[i - 1] / self.height - 0.5
-            label[i] = label[i] / self.width - 0.5
+        label = label.reshape(-1, 2)
+        print(label.shape)
+        label = label / torch.Tensor([self.width, self.height]) - 0.5
         return image, label
     
     @staticmethod
@@ -91,7 +91,7 @@ class ImageTransform(Dataset):
         
         images = denormalize(images)
         for i in range(images.size()[0]):
-            keypoints = labels[i].reshape(-1, 2)
+            keypoints = labels[i]
             image = images[i].squeeze().permute(1, 2, 0)
             fig.add_subplot(row, col, i + 1)
             filter_dataset.FilterDataset.draw_image_with_keypoints(image, keypoints, width, height, normalize)
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     x, y = transform[3]
     filter_dataset.FilterDataset.draw_image_with_keypoints(
         x.permute(1, 2, 0),
-        keypoints = y.reshape(-1, 2),
+        keypoints = y,
         width = transform.width,
         height = transform.height,
         normalize= True

@@ -5,7 +5,7 @@ from PIL import Image
 import numpy as np
 import albumentations
 import matplotlib.pyplot as plt
-import utils_dataset
+from components import utils_dataset
 import torch
 from matplotlib.patches import Rectangle
 
@@ -26,11 +26,7 @@ class FilterDataset(data.Dataset):
 
         self.df = pd.DataFrame(data)
 
-        file = self.df['file_path']
-        self.x = list()
-        for i in range(128):
-            image = Image.open(str(self.data_dir) + '/' + file[i])
-            self.x.append(np.asarray(image))
+        self.x = self.df['file_path'][:128]
 
         self.y = list()
         for i in range(128):
@@ -39,6 +35,7 @@ class FilterDataset(data.Dataset):
                 temp.append(self.df.iloc[i][str(j)][0])
                 temp.append(self.df.iloc[i][str(j)][1])
             temp = torch.Tensor(temp)
+            temp = temp.reshape(-1, 2)
             self.y.append(temp)
 
         self.box = self.df['box']
@@ -50,7 +47,8 @@ class FilterDataset(data.Dataset):
         return len(self.x)
 
     def __getitem__(self, index: int):
-        image, label, box = self.x[index], self.y[index], self.box[index]
+        file_path, label, box = self.x[index], self.y[index], self.box[index]
+        image = np.asarray(Image.open(str(self.data_dir) + '/' + file_path))
         x_min = int(box[0])
         y_min = int(box[1])
         x_max = int(box[0] + box[2])
@@ -72,9 +70,9 @@ class FilterDataset(data.Dataset):
         transformed = last_transform(image = image)
         image = transformed['image']
 
-        for i in range(1, label.shape[0], 2):
-            label[i - 1] -= x_min
-            label[i] -= y_min
+        for i in range(label.shape[0]):
+            label[i][0] -= x_min
+            label[i][1] -= y_min
         return image, label, box
     
     def get_raw_data(self, index: int):
@@ -147,7 +145,7 @@ if __name__ == '__main__':
         
         FilterDataset.draw_image_with_keypoints(
             image = x,
-            keypoints = y.reshape(-1, 2),
+            keypoints = y,
             width = x.shape[1],
             height = x.shape[0],
             normalize = False

@@ -1,0 +1,124 @@
+data_train:
+  _target_: src.data.components.filter_dataset.FilterDataset
+  _partial_: true
+  xml_file: labels_ibug_300W.xml
+  num_of_keypoints: 68
+data_test:
+  _target_: src.data.components.filter_dataset.FilterDataset
+  _partial_: true
+  xml_file: labels_ibug_300W_test.xml
+  num_of_keypoints: 68
+train_transform:
+  _target_: albumentations.Compose
+  _recursive_: true
+  transforms:
+  - _target_: albumentations.Resize
+    height: 256
+    width: 256
+  - _target_: albumentations.RandomCrop
+    height: 224
+    width: 224
+  - _target_: albumentations.ShiftScaleRotate
+    shift_limit: 0.05
+    scale_limit: 0.05
+    rotate_limit: 30
+  - _target_: albumentations.RandomBrightnessContrast
+    p: 0.2
+  - _target_: albumentations.RGBShift
+    r_shift_limit: 10
+    g_shift_limit: 10
+    b_shift_limit: 10
+    p: 0.2
+  - _target_: albumentations.Normalize
+    mean:
+    - 0.485
+    - 0.456
+    - 0.406
+    std:
+    - 0.229
+    - 0.224
+    - 0.225
+  - _target_: albumentations.pytorch.ToTensorV2
+  bbox_params:
+    _target_: albumentations.BboxParams
+    format: coco
+    min_area: 1024
+    min_visibility: 0.1
+    label_fields:
+    - bbox_classes
+  keypoint_params:
+    _target_: albumentations.KeypointParams
+    format: xy
+    label_fields:
+    - keypoints_classes
+    remove_invisible: false
+val_transform:
+  _target_: albumentations.Compose
+  _recursive_: true
+  transforms:
+  - _target_: albumentations.Resize
+    height: 224
+    width: 224
+  - _target_: albumentations.Normalize
+    mean:
+    - 0.485
+    - 0.456
+    - 0.406
+    std:
+    - 0.229
+    - 0.224
+    - 0.225
+  - _target_: albumentations.pytorch.ToTensorV2
+  bbox_params:
+    _target_: albumentations.BboxParams
+    format: coco
+    min_area: 1024
+    min_visibility: 0.1
+    label_fields:
+    - bbox_classes
+  keypoint_params:
+    _target_: albumentations.KeypointParams
+    format: xy
+    label_fields:
+    - keypoints_classes
+    remove_invisible: false
+test_transform:
+  _target_: albumentations.Compose
+  _recursive_: true
+  transforms:
+  - _target_: albumentations.Resize
+    height: 224
+    width: 224
+  - _target_: albumentations.Normalize
+    mean:
+    - 0.485
+    - 0.456
+    - 0.406
+    std:
+    - 0.229
+    - 0.224
+    - 0.225
+  - _target_: albumentations.pytorch.ToTensorV2
+  bbox_params:
+    _target_: albumentations.BboxParams
+    format: coco
+    min_area: 1024
+    min_visibility: 0.1
+    label_fields:
+    - bbox_classes
+  keypoint_params:
+    _target_: albumentations.KeypointParams
+    format: xy
+    label_fields:
+    - keypoints_classes
+    remove_invisible: false
+_target_: src.data.filter_datamodule.FilterDataModule
+data_dir: ${paths.data_dir}/ibug_300W_large_face_landmark_dataset/
+batch_size: 64
+train_val_test_split:
+- 64
+- 64
+num_workers: 4
+pin_memory: true
+width: 224
+height: 224
