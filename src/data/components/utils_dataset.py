@@ -22,8 +22,11 @@ def get_imagexml(file_path: str):
     data_xml = None
     with open(file_path, 'r') as f:
         data_xml = f.read()
+        print(data_xml)
+        print('Come here')
     data_xml = BeautifulSoup(data_xml, 'xml')
     image_xml = data_xml.find_all('image')
+    print(len(image_xml))
     return image_xml
 
 def get_data(image_xml: List, data: dict):
