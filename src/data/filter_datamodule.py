@@ -139,6 +139,7 @@ class FilterDataModule(LightningDataModule):
 
         if not self.data_train and not self.data_val and not self.data_test:
             data_train = self.hparams.data_train(data_dir = self.hparams.data_dir)
+            print('Size of data_train', len(data_train))
             #data_train = self.hparams.data_train
             data_test = self.hparams.data_test(data_dir = self.hparams.data_dir)
             data_train, data_val = random_split(
