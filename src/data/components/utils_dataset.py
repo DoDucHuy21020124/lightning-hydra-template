@@ -22,10 +22,11 @@ def get_imagexml(file_path: str):
     data_xml = None
     with open(file_path, 'r') as f:
         data_xml = f.read()
-        print(data_xml)
         print('Come here')
     data_xml = BeautifulSoup(data_xml, 'xml')
-    image_xml = data_xml.find_all('image')
+    print(data_xml)
+    image_xml = data_xml('image')
+    print(image_xml)
     print(len(image_xml))
     return image_xml
 
@@ -152,3 +153,6 @@ def get_data(image_xml: List, data: dict):
 #     cfg = omegaconf.OmegaConf.load(root / "configs"/ "data"/ file_path)
 #     data = hydra.utils.instantiate(cfg)
 #     return data
+
+if __name__ == 'main':
+    print(BeautifulSoup.__version__)
