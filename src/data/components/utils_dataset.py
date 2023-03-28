@@ -51,6 +51,7 @@ def get_data(image_xml: List, data: dict):
             else:
                 coordinates = None
             data[str(k)].append(coordinates)
+        print(file_path)
     return data
 
 # def change_label_to_keypoints(label: torch.Tensor) -> List:
