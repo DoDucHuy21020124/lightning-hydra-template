@@ -1,13 +1,8 @@
 from typing import Dict, List
 from bs4 import BeautifulSoup
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+import bs4
 from numpy import ndarray
-import math
-import torch
-import omegaconf
-import hydra
-import pyrootutils
+from xml.etree import ElementTree as ET
 
 def init_dataframe(part: int):
     data = {
@@ -18,45 +13,73 @@ def init_dataframe(part: int):
         data[str(i)] = list()
     return data
 
+
 def get_imagexml(file_path: str):
-    data_xml = None
-    with open(file_path, 'r') as f:
-        data_xml = f.read()
-        print('Come here')
-    data_xml = BeautifulSoup(data_xml, 'xml')
-    print(data_xml)
-    image_xml = data_xml('image')
-    print(image_xml)
+    root = ET.parse(file_path).getroot()
+    image_xml = root.find('images')
     print(len(image_xml))
     return image_xml
 
-def get_data(image_xml: List, data: dict):
-    for i in range(0, len(image_xml)):
-        file_path = image_xml[i].get('file')
+def get_data(image_xml: ET.Element, data: dict):
+    for image in image_xml:
+        file_path = image.attrib['file']
         data['file_path'].append(file_path)
 
-        box = image_xml[i].find('box')
-        box_features = list()
-        box_features.append(float(box.get('left')))
-        box_features.append(float(box.get('top')))
-        box_features.append(float(box.get('width')))
-        box_features.append(float(box.get('height')))
+        box = image.find('box')
+        box_features = [
+            float(box.attrib['left']),
+            float(box.attrib['top']),
+            float(box.attrib['width']),
+            float(box.attrib['height'])
+        ]
         data['box'].append(box_features)
 
-        key_points = box.find_all('part')
         j = 0
-        for k in range(len(key_points)):
-            coordinates = list()
-            name = key_points[k].get('name')
-            if int(name) == j:
-                coordinates.append(float(key_points[k].get('x')))
-                coordinates.append(float(key_points[k].get('y')))
-                j = j + 1
-            else:
-                coordinates = None
-            data[str(k)].append(coordinates)
-        print(file_path)
+        for part in box:
+            coordinates = None
+            coordinates = [float(part.attrib['x']), float(part.attrib['y'])]
+            data[str(j)].append(coordinates)
+            j = j + 1
     return data
+
+# def get_imagexml(file_path: str):
+#     data_xml = None
+#     with open(file_path, 'r') as f:
+#         data_xml = f.read()
+#         print('Come here')
+#     data_xml = BeautifulSoup(data_xml, 'xml')
+#     print(data_xml)
+#     image_xml = data_xml('image')
+#     #print(image_xml)
+#     print(len(image_xml))
+#     return image_xml
+
+# def get_data(image_xml: List, data: dict):
+#     for i in range(0, len(image_xml)):
+#         file_path = image_xml[i].get('file')
+#         data['file_path'].append(file_path)
+
+#         box = image_xml[i].find('box')
+#         box_features = list()
+#         box_features.append(float(box.get('left')))
+#         box_features.append(float(box.get('top')))
+#         box_features.append(float(box.get('width')))
+#         box_features.append(float(box.get('height')))
+#         data['box'].append(box_features)
+
+#         key_points = box.find_all('part')
+#         j = 0
+#         for k in range(len(key_points)):
+#             coordinates = list()
+#             name = key_points[k].get('name')
+#             if int(name) == j:
+#                 coordinates.append(float(key_points[k].get('x')))
+#                 coordinates.append(float(key_points[k].get('y')))
+#                 j = j + 1
+#             else:
+#                 coordinates = None
+#             data[str(k)].append(coordinates)
+#     return data
 
 # def change_label_to_keypoints(label: torch.Tensor) -> List:
 #     return label.reshape(-1, 2)
@@ -154,5 +177,8 @@ def get_data(image_xml: List, data: dict):
 #     data = hydra.utils.instantiate(cfg)
 #     return data
 
-if __name__ == 'main':
-    print(BeautifulSoup.__version__)
+if __name__ == '__main__':
+    dictionary = init_dataframe(68)
+    image_xml = get_imagexml('.\data\ibug_300W_large_face_landmark_dataset\labels_ibug_300W.xml')
+    data = get_data(image_xml, dictionary)
+    print(data['0'])
