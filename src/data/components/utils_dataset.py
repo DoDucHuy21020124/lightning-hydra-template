@@ -1,16 +1,15 @@
 from typing import Dict, List
 from bs4 import BeautifulSoup
 import bs4
-from numpy import ndarray
 from xml.etree import ElementTree as ET
+import numpy as np
 
 def init_dataframe(part: int):
     data = {
         'file_path': list(),
-        'box': list()
+        'box': list(),
+        'keypoints': list()
     }
-    for i in range(0, part):
-        data[str(i)] = list()
     return data
 
 
@@ -25,20 +24,18 @@ def get_data(image_xml: ET.Element, data: dict):
         data['file_path'].append(file_path)
 
         box = image.find('box')
-        box_features = [
+        box_features = np.array([
             float(box.attrib['left']),
             float(box.attrib['top']),
             float(box.attrib['width']),
             float(box.attrib['height'])
-        ]
+        ])
         data['box'].append(box_features)
 
-        j = 0
-        for part in box:
-            coordinates = None
-            coordinates = [float(part.attrib['x']), float(part.attrib['y'])]
-            data[str(j)].append(coordinates)
-            j = j + 1
+        coordinates = np.array([
+            [float(part.attrib['x']), float(part.attrib['y'])] for part in box
+        ])
+        data['keypoints'].append(coordinates)
     return data
 
 # def get_imagexml(file_path: str):

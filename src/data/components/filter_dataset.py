@@ -6,7 +6,6 @@ import numpy as np
 import albumentations
 import matplotlib.pyplot as plt
 from src.data.components import utils_dataset
-import torch
 from matplotlib.patches import Rectangle
 import os
 
@@ -24,25 +23,16 @@ class FilterDataset(data.Dataset):
         image_xml = utils_dataset.get_imagexml(os.path.join(self.data_dir, xml_file))
         data = utils_dataset.init_dataframe(self.num_of_keypoints)
         data = utils_dataset.get_data(image_xml, data)
+        self.data = data
 
-        self.df = pd.DataFrame(data)
+        self.x = self.data['file_path']
 
-        self.x = self.df['file_path']
+        self.y = self.data['keypoints']
 
-        self.y = list()
-        for i in range(len(self.x)):
-            temp = list()
-            for j in range(self.num_of_keypoints):
-                temp.append(self.df.iloc[i].at[str(j)][0])
-                temp.append(self.df.iloc[i].at[str(j)][1])
-            temp = torch.Tensor(temp)
-            temp = temp.reshape(-1, 2)
-            self.y.append(temp)
-
-        self.box = self.df['box']
+        self.box = self.data['box']
 
         self.bbox_classes = ['person']
-        self.keypoints_classes = [str(i) for i in range(68)]
+        self.keypoints_classes = [str(i) for i in range(num_of_keypoints)]
 
     def __len__(self):
         return len(self.x)
@@ -82,21 +72,21 @@ class FilterDataset(data.Dataset):
     @staticmethod
     def draw_image_with_keypoints(
         image: np.ndarray,
-        keypoints: torch.Tensor,
+        keypoints: np.ndarray,
         width: float = None,
         height: float = None,
         normalize: bool = False
     ) -> None:
         assert width is not None and height is not None
         if normalize:
-            for i in range(keypoints.size()[0]):
+            for i in range(keypoints.shape[0]):
                 keypoints[i][0] = (keypoints[i][0] + 0.5) * width
                 keypoints[i][1] = (keypoints[i][1] + 0.5) * height
             #print(keypoints)
         plt.xlim(width)
         plt.ylim(height)
         plt.imshow(image)
-        for i in range(keypoints.size()[0]):
+        for i in range(keypoints.shape[0]):
             if keypoints[i][0] is not None and keypoints[i][1] is not None and keypoints[i][0] >= 0 and keypoints[i][0] <= width and keypoints[i][1] >= 0 and keypoints[i][1] <= height:
                 plt.plot(float(keypoints[i][0]), float(keypoints[i][1]), marker = '.', markersize = 0.5, color = 'red')
         #plt.scatter(keypoints[:, 0], keypoints[:, 1], s = 0.5, c = 'red')
