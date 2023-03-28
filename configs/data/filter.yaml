@@ -10,21 +10,9 @@ defaults:
   - _self_
 
 batch_size: 64
-train_val_test_split: [64, 64]
+train_val_test_split: [0.8, 0.2]
 num_workers: 4
 pin_memory: True
 
 width: 224
 height: 224
-
-# data_train: filter_train_test/filter_train.yaml
-# data_test: filter_train_test/filter_test.yaml
-# train_transform: transform/filter_transform/train_transform.yaml
-# val_transform: transform/filter_transform/val_transform.yaml
-# test_transform: transform/filter_transform/test_transform.yaml
-
-# data_train: filter_train.yaml
-# data_test: filter_test.yaml
-# train_transform: train_transform.yaml
-# val_transform: val_transform.yaml
-# test_transform: test_transform.yaml

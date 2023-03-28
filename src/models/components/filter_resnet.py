@@ -10,8 +10,9 @@ class FilterResnet(torch.nn.Module):
         output_shape: list = [68, 2]
     ):
         super().__init__()
-        model = get_model(model_name, weights = weights)
+
         supported = False
+        model = get_model(model_name, weights = weights)
         if hasattr(model, 'fc'):
             in_features = model.fc.in_features
             model.fc = torch.nn.Linear(
@@ -31,6 +32,7 @@ class FilterResnet(torch.nn.Module):
             print('This model does not support')
             exit(1)
         
+        
         self.model = model
         self.output_shape = output_shape
     
@@ -38,10 +40,9 @@ class FilterResnet(torch.nn.Module):
         return self.model(x).reshape(x.shape[0], self.output_shape[0], self.output_shape[1])
     
 if __name__ == '__main__':
-    print(torch.cuda.is_available())
-    # model = FilterResnet()
-    # x = torch.randn((3, 3, 224, 224))
-    # y = model(x)
-    # print(y.shape)
+    model = FilterResnet()
+    x = torch.randn((3, 3, 224, 224))
+    y = model(x)
+    print(y.shape)
 
-    #_ = FilterResnet()
+    # _ = FilterResnet()

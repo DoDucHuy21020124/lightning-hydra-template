@@ -27,7 +27,7 @@ class FilterDataset(data.Dataset):
 
         self.df = pd.DataFrame(data)
 
-        self.x = self.df['file_path'][:128]
+        self.x = self.df['file_path']
         print(len(self.x))
 
         self.y = list()
