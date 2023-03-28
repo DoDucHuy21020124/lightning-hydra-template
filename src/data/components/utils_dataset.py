@@ -17,7 +17,6 @@ def init_dataframe(part: int):
 def get_imagexml(file_path: str):
     root = ET.parse(file_path).getroot()
     image_xml = root.find('images')
-    print(len(image_xml))
     return image_xml
 
 def get_data(image_xml: ET.Element, data: dict):

@@ -56,7 +56,6 @@ class ImageTransform(Dataset):
             label.append(keypoints[i][1])
         label = torch.Tensor(label)
         label = label.reshape(-1, 2)
-        print(label.shape)
         label = label / torch.Tensor([self.width, self.height]) - 0.5
         return image, label
     
