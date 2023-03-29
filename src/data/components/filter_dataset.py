@@ -39,7 +39,7 @@ class FilterDataset(data.Dataset):
 
     def __getitem__(self, index: int):
         file_path, label, box = self.x[index], self.y[index], self.box[index]
-        image = np.asarray(Image.open(os.path.join(self.data_dir, file_path)))
+        image = np.asarray(Image.open(os.path.join(self.data_dir, file_path)).convert('RGB'))
         x_min = int(box[0])
         y_min = int(box[1])
         x_max = int(box[0] + box[2])
@@ -64,6 +64,8 @@ class FilterDataset(data.Dataset):
         for i in range(label.shape[0]):
             label[i][0] -= x_min
             label[i][1] -= y_min
+        print('imagedataset', image.shape)
+        print('labeldataset', label.shape)
         return image, label, box
     
     def get_raw_data(self, index: int):

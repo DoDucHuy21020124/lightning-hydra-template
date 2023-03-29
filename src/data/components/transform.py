@@ -41,6 +41,8 @@ class ImageTransform(Dataset):
     
     def __getitem__(self, index):
         image, label, box = self.data[index]
+        print('image_shape', image.shape)
+        print('label_shape', label.shape)
         transformed = self.transform(
             image = image,
             bboxes = [box],

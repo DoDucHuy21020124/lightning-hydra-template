@@ -9,7 +9,6 @@ from src.data.components.transform import ImageTransform
 from omegaconf import DictConfig
 import pyrootutils
 import hydra
-import omegaconf
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import albumentations
