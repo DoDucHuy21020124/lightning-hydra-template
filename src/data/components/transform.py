@@ -94,6 +94,7 @@ class ImageTransform(Dataset):
             image = images[i].squeeze().permute(1, 2, 0)
             fig.add_subplot(row, col, i + 1)
             filter_dataset.FilterDataset.draw_image_with_keypoints(image, keypoints, width, height, normalize)
+            plt.savefig('test.png', dpi = 300)
     
 if __name__ == '__main__':
     import hydra

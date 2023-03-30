@@ -123,14 +123,15 @@ if __name__ == '__main__':
 
     root = pyrootutils.setup_root(__file__, pythonpath= True)
     data_dir = root / 'data/ibug_300W_large_face_landmark_dataset/'
-    config_path = str(root / 'configs'/ 'data'/ 'data_train')
+    config_path = str(root / 'configs'/ 'data'/ 'data_test')
     data_dir = root / 'data/ibug_300W_large_face_landmark_dataset/'
     
-    @hydra.main(config_path=config_path, config_name='filter_train.yaml')
+    @hydra.main(config_path=config_path, config_name='filter_test.yaml')
     def main(cfg: DictConfig):
         filter = hydra.utils.instantiate(cfg)
         filter = filter(data_dir = data_dir)
         print(filter)
+        print(len(filter))
         x, y, _ = filter[10]
         print(x.shape, y.shape)
         
