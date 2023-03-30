@@ -86,7 +86,7 @@ class FilterDataset(data.Dataset):
             #print(keypoints)
         plt.xlim(width)
         plt.ylim(height)
-        plt.imshow(image)
+        plt.imshow(image.cpu())
         for i in range(keypoints.shape[0]):
             if keypoints[i][0] is not None and keypoints[i][1] is not None and keypoints[i][0] >= 0 and keypoints[i][0] <= width and keypoints[i][1] >= 0 and keypoints[i][1] <= height:
                 plt.plot(float(keypoints[i][0]), float(keypoints[i][1]), marker = '.', markersize = 0.5, color = 'red')
