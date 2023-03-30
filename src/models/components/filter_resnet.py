@@ -27,6 +27,12 @@ class FilterResnet(torch.nn.Module):
                     in_features=in_features, out_features=output_shape[0] * output_shape[1]
                 )
                 supported = True
+        elif hasattr(model, 'classifier'):
+            in_features = model.classifier.in_features
+            model.classifier = torch.nn.Linear(
+                in_features = in_features, out_features = output_shape[0] * output_shape[1]
+            )
+            supported = True
 
         if not supported:
             print('This model does not support')
