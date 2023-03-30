@@ -219,6 +219,7 @@ if __name__ == "__main__":
         dataloader = datamodule.train_dataloader()
         iterbatch = iter(dataloader)
         x, y = next(iterbatch)
+        print(x.shape)
         ImageTransform.draw_batch_image(
             images = x,
             labels = y,

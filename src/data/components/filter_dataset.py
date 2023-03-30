@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from src.data.components import utils_dataset
 from matplotlib.patches import Rectangle
 import os
+import torch
 
 class FilterDataset(data.Dataset):
     def __init__(
@@ -71,8 +72,8 @@ class FilterDataset(data.Dataset):
 
     @staticmethod
     def draw_image_with_keypoints(
-        image: np.ndarray,
-        keypoints: np.ndarray,
+        image: torch.Tensor,
+        keypoints: torch.Tensor,
         width: float = None,
         height: float = None,
         normalize: bool = False
