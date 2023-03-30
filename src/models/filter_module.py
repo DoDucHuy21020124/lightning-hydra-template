@@ -94,16 +94,16 @@ class FilterModule(LightningModule):
         pass
 
     def validation_step(self, batch: Any, batch_idx: int):
-        loss, preds, targets = self.model_step(batch)
         images, labels = batch
+        loss, preds, targets = self.model_step(batch)
 
         # update and log metrics
         self.val_loss(loss)
         self.val_mae(preds, targets)
         self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log("val/mae", self.val_mae, on_step=False, on_epoch=True, prog_bar=True)
-        if batch_idx == 0:
-            ImageTransform.draw_batch_image(images, labels, 224, 224, True)
+        # if batch_idx == 0:
+        #     ImageTransform.draw_batch_image(images, labels, 224, 224, True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
