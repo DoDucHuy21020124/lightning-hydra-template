@@ -102,8 +102,8 @@ class FilterModule(LightningModule):
         self.val_mae(preds, targets)
         self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log("val/mae", self.val_mae, on_step=False, on_epoch=True, prog_bar=True)
-        # if batch_idx == 0:
-        #     ImageTransform.draw_batch_image(images, labels, 224, 224, True)
+        if batch_idx == 0:
+            ImageTransform.draw_batch_image(images, labels, 224, 224, True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
