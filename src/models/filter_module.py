@@ -5,6 +5,8 @@ from pytorch_lightning import LightningModule
 from torchmetrics import MinMetric, MeanMetric
 from torchmetrics.regression.mae import MeanAbsoluteError
 from src.data.components.transform import ImageTransform
+import matplotlib.pyplot as plt
+import wandb
 
 
 class FilterModule(LightningModule):
@@ -102,8 +104,11 @@ class FilterModule(LightningModule):
         self.val_mae(preds, targets)
         self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log("val/mae", self.val_mae, on_step=False, on_epoch=True, prog_bar=True)
+
         if batch_idx == 0:
-            ImageTransform.draw_batch_image(images, labels, 224, 224, True)
+            batch_image = ImageTransform.draw_batch_image(images, preds, 224, 224, True)
+            wandb_image = wandb.Image(batch_image)
+            self.logger.experiment.log({'val/image': wandb_image})
 
         return {"loss": loss, "preds": preds, "targets": targets}
 

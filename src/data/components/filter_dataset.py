@@ -1,12 +1,11 @@
 from typing import Dict, List
 import torch.utils.data as data
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageDraw
 import numpy as np
 import albumentations
 import matplotlib.pyplot as plt
 from src.data.components import utils_dataset
-from matplotlib.patches import Rectangle
 import os
 import torch
 
@@ -26,7 +25,7 @@ class FilterDataset(data.Dataset):
         data = utils_dataset.get_data(image_xml, data)
         self.data = data
 
-        self.x = self.data['file_path']
+        self.x = self.data['file_path'][:128]
 
         self.y = self.data['keypoints']
 
@@ -80,18 +79,14 @@ class FilterDataset(data.Dataset):
     ) -> None:
         assert width is not None and height is not None
         if normalize:
-            for i in range(keypoints.shape[0]):
-                keypoints[i][0] = (keypoints[i][0] + 0.5) * width
-                keypoints[i][1] = (keypoints[i][1] + 0.5) * height
-            #print(keypoints)
-        plt.xlim(width)
-        plt.ylim(height)
-        plt.imshow(image.cpu())
+            keypoints = (keypoints + 0.5) * torch.Tensor([width, height])
+        if not isinstance(image, Image.Image):
+            image = Image.fromarray(image)
+        draw = ImageDraw.Draw(image)
         for i in range(keypoints.shape[0]):
             if keypoints[i][0] is not None and keypoints[i][1] is not None and keypoints[i][0] >= 0 and keypoints[i][0] <= width and keypoints[i][1] >= 0 and keypoints[i][1] <= height:
-                plt.plot(float(keypoints[i][0]), float(keypoints[i][1]), marker = '.', markersize = 0.5, color = 'red')
-        #plt.scatter(keypoints[:, 0], keypoints[:, 1], s = 0.5, c = 'red')
-        plt.axis('off')
+                draw.ellipse((keypoints[i][0] - 2, keypoints[i][1] - 2, keypoints[i][0] + 2, keypoints[i][1] + 2), fill = (255, 255, 0))
+        return image
 
     @staticmethod
     def draw_image_with_keypoints_and_boundingbox(
@@ -106,16 +101,14 @@ class FilterDataset(data.Dataset):
         top_box = box[1]
         width_box = box[2]
         height_box = box[3]
-
-        plt.gca().add_patch(Rectangle(
-            xy = (left_box, top_box),
-            width = width_box,
-            height = height_box,
-            fill = False,
-            edgecolor = 'green',
-            lw = 2
-        ))
-        FilterDataset.draw_image_with_keypoints(image, keypoints, width, height, normalize)
+        
+        if not isinstance(image, Image.Image):
+            image = Image.fromarray(image)
+        draw = ImageDraw.Draw(image)
+        draw.rectangle((left_box, top_box, left_box + width_box, top_box + height_box), width = 2, outline = (0, 255, 0))
+        print('image', type(image))
+        image = FilterDataset.draw_image_with_keypoints(image, keypoints, width, height, normalize)
+        return image
 
 if __name__ == '__main__':
     from omegaconf import DictConfig
@@ -133,17 +126,32 @@ if __name__ == '__main__':
         filter = filter(data_dir = data_dir)
         print(filter)
         print(len(filter))
-        x, y, _ = filter[10]
+        x, y, box = filter[10]
         print(x.shape, y.shape)
         
-        FilterDataset.draw_image_with_keypoints(
+        image1 = FilterDataset.draw_image_with_keypoints(
             image = x,
             keypoints = y,
             width = x.shape[1],
             height = x.shape[0],
             normalize = False
         )
-        print(y.shape)
+        plt.imshow(image1)
+        plt.show()
+
+        image2 = filter.x[3]
+        image2 = Image.open(os.path.join(str(filter.data_dir), image2))
+        keypoints = filter.y[3]
+        box = filter.box[3]
+        image2 = FilterDataset.draw_image_with_keypoints_and_boundingbox(
+            image = image2,
+            box = box,
+            keypoints = keypoints,
+            width = image2.size[1],
+            height = image2.size[0],
+            normalize = False
+        )
+        plt.imshow(image2)
         plt.show()
     main()
     #_ = FilterDataset()

@@ -10,6 +10,7 @@ import albumentations.pytorch
 from src.data.components import filter_dataset
 import torch
 import math
+import torchvision
 
 
 class ImageTransform(Dataset):
@@ -58,6 +59,14 @@ class ImageTransform(Dataset):
         label = label.reshape(-1, 2)
         label = label / torch.Tensor([self.width, self.height]) - 0.5
         return image, label
+
+    @staticmethod
+    def denormalize(image: torch.Tensor, mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225]):
+        # 3, H, W
+        print(image)
+        for t, m, s in zip(image, mean, std):
+            t.mul_(s).add_(m)
+        return torch.clamp(image, 0, 1)
     
     @staticmethod
     def draw_batch_image(
@@ -67,20 +76,20 @@ class ImageTransform(Dataset):
         height: float = None,
         normalize: bool = False
     ) -> None:
-        fig = plt.figure(figsize = (4, 4))
-        plt.subplots_adjust(left=0,bottom=0,right=1,top=1, wspace=0, hspace=0)
-        number_image = images.size()[0]
-        row = int(math.sqrt(number_image))
-        col = None
-        if number_image % row == 0:
-            col = int(number_image / row)
-        else:
-            col = int(number_image / row) + 1
+        # fig = plt.figure(figsize = (4, 4))
+        # plt.subplots_adjust(left=0,bottom=0,right=1,top=1, wspace=0, hspace=0)
+        # number_image = images.size()[0]
+        # row = int(math.sqrt(number_image))
+        # col = None
+        # if number_image % row == 0:
+        #     col = int(number_image / row)
+        # else:
+        #     col = int(number_image / row) + 1
 
         IMG_MEAN = [0.485, 0.456, 0.406]
         IMG_STD = [0.229, 0.224, 0.225]
 
-        def denormalize(x, mean=IMG_MEAN, std=IMG_STD) -> torch.Tensor:
+        def denormalize_batch(x, mean=IMG_MEAN, std=IMG_STD) -> torch.Tensor:
             # 3, H, W, B
             ten = x.clone().permute(1, 2, 3, 0)
             for t, m, s in zip(ten, mean, std):
@@ -88,13 +97,15 @@ class ImageTransform(Dataset):
             # B, 3, H, W
             return torch.clamp(ten, 0, 1).permute(3, 0, 1, 2)
         
-        images = denormalize(images)
+        images = denormalize_batch(images)
+        images_to_save = []
         for i in range(images.size()[0]):
             keypoints = labels[i]
-            image = images[i].squeeze().permute(1, 2, 0)
-            fig.add_subplot(row, col, i + 1)
-            filter_dataset.FilterDataset.draw_image_with_keypoints(image, keypoints, width, height, normalize)
-            plt.savefig('test.png', dpi = 300)
+            image = (images[i].squeeze().permute(1, 2, 0).numpy() * 255).astype(np.uint8)
+            image = filter_dataset.FilterDataset.draw_image_with_keypoints(image, keypoints, width, height, normalize)
+            images_to_save.append(torchvision.transforms.ToTensor()(image))
+        images_to_save = torch.stack(images_to_save)
+        return images_to_save
     
 if __name__ == '__main__':
     import hydra
@@ -114,11 +125,14 @@ if __name__ == '__main__':
     transform = hydra.utils.instantiate(cfg)
     transform = ImageTransform(data = filter, transform= transform)
     x, y = transform[3]
-    filter_dataset.FilterDataset.draw_image_with_keypoints(
-        x.permute(1, 2, 0),
+    x = ImageTransform.denormalize(x)
+    print(x)
+    image = filter_dataset.FilterDataset.draw_image_with_keypoints(
+        image = (x.permute(1, 2, 0).numpy() * 255).astype(np.uint8),
         keypoints = y,
         width = transform.width,
         height = transform.height,
         normalize= True
     )
+    plt.imshow(image)
     plt.show()

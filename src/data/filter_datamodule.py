@@ -12,6 +12,7 @@ import hydra
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import albumentations
+import torchvision
 
 class FilterDataModule(LightningDataModule):
     """Example of LightningDataModule for MNIST dataset.
@@ -220,14 +221,16 @@ if __name__ == "__main__":
         iterbatch = iter(dataloader)
         x, y = next(iterbatch)
         print(x.shape)
-        ImageTransform.draw_batch_image(
+        image = ImageTransform.draw_batch_image(
             images = x,
             labels = y,
             width = x.shape[2],
             height = x.shape[3],
             normalize = True
         )
-        plt.show()
+        torchvision.utils.save_image(image, 'batch_image.png')
+        # plt.imshow(image)
+        # plt.show()
     main()
 
     # root = pyrootutils.setup_root(__file__, pythonpath=True)
