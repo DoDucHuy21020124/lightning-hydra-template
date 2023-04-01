@@ -25,7 +25,7 @@ class FilterDataset(data.Dataset):
         data = utils_dataset.get_data(image_xml, data)
         self.data = data
 
-        self.x = self.data['file_path'][:128]
+        self.x = self.data['file_path']
 
         self.y = self.data['keypoints']
 
