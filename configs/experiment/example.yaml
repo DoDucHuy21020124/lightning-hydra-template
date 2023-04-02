@@ -5,7 +5,7 @@
 
 defaults:
   - override /data: filter.yaml
-  - override /model: mnist.yaml
+  - override /model: filter.yaml
   - override /callbacks: default.yaml
   - override /trainer: default.yaml
 
