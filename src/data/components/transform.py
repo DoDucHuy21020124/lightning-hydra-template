@@ -11,6 +11,7 @@ from src.data.components import filter_dataset
 import torch
 import math
 import torchvision
+import torchvision.transforms as T
 
 
 class ImageTransform(Dataset):
@@ -101,8 +102,8 @@ class ImageTransform(Dataset):
         images_to_save = []
         for i in range(images.size()[0]):
             keypoints = labels[i]
-            image = (images[i].squeeze().permute(1, 2, 0).numpy() * 255).astype(np.uint8)
-            image = filter_dataset.FilterDataset.draw_image_with_keypoints(image, keypoints, width, height, normalize)
+            image = (images[i].squeeze() * 255).type(torch.uint8)
+            image = filter_dataset.FilterDataset.draw_image_with_keypoints(T.ToPILImage()(image), keypoints, width, height, normalize)
             images_to_save.append(torchvision.transforms.ToTensor()(image))
         images_to_save = torch.stack(images_to_save)
         return images_to_save
