@@ -1,0 +1,5 @@
+_target_: workspace.src.model.filter_resnet.FilterResnet
+model_name: 'resnet50'
+weights: 'DEFAULT'
+output_shape: [68, 2]
+pretrained_weight_path: ${paths.pretrained_weight_dir}/weight_resnet50_1.pt

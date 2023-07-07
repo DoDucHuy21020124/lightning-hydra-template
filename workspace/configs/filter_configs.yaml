@@ -1,0 +1,6 @@
+defaults:
+  - paths: default.yaml
+  - filters: default.yaml
+  - model: filter_resnet.yaml
+  - transform: filter_transform.yaml
+  - _self_

@@ -1,0 +1,57 @@
+paths:
+  root_dir: ${oc.env:PROJECT_ROOT}
+  workspace_dir: ${paths.root_dir}/workspace
+  input_image_dir: ${paths.workspace_dir}/inputs/images
+  input_video_dir: ${paths.workspace_dir}/inputs/videos
+  output_image_dir: ${paths.workspace_dir}/outputs/images
+  output_video_dir: ${paths.workspace_dir}/outputs/videos
+  filters_dir: ${paths.input_image_dir}/filters
+  input_csv_dir: ${paths.workspace_dir}/inputs/csv_files
+  pretrained_weight_dir: ${paths.workspace_dir}/inputs/pretrained_weights
+filters:
+  filter_image:
+    filter_glasses_image:
+      _target_: workspace.src.filters.filter_images.filter_glasses_image.FilterGlassesImage
+      model: ${model}
+      transform: ${transform}
+      image_folder: ${paths.input_image_dir}
+      filter_name: eye_glasses.png
+      device: cpu
+    filter_face_swapping_image:
+      _target_: workspace.src.filters.filter_images.filter_face_swapping_image.FilterFaceSwappingImage
+      model: ${model}
+      transform: ${transform}
+      image_folder: ${paths.input_image_dir}
+      csv_folder: ${paths.input_csv_dir}
+      face1_csv: le_hai_lam.csv
+      device: cpu
+  filter_video:
+    filter_face_swapping_video:
+      _target_: workspace.src.filters.filter_videos.filter_face_swapping_video.FilterFaceSwappingVideo
+      filter_image: ${filters.filter_image.filter_face_swapping_image}
+      output_folder: ${paths.output_video_dir}
+    filter_glasses_video:
+      _target_: workspace.src.filters.filter_videos.filter_glasses_video.FilterGlassesVideo
+      filter_image: ${filters.filter_image.filter_glasses_image}
+      output_folder: ${paths.output_video_dir}
+model:
+  _target_: workspace.src.model.filter_resnet.FilterResnet
+  model_name: resnet50
+  weights: DEFAULT
+  output_shape:
+  - 68
+  - 2
+  pretrained_weight_path: ${paths.pretrained_weight_dir}/weight_resnet50_1.pt
+transform:
+  _target_: workspace.src.filters.utils.transform_workspace.MyTransform
+  transform: null
+  height: 224
+  width: 224
+  mean:
+  - 0.485
+  - 0.456
+  - 0.406
+  std:
+  - 0.229
+  - 0.224
+  - 0.225

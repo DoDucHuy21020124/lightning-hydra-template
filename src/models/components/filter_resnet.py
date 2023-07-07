@@ -7,7 +7,8 @@ class FilterResnet(torch.nn.Module):
         self,
         model_name: str = 'resnet18',
         weights: str = 'DEFAULT',
-        output_shape: list = [68, 2]
+        output_shape: list = [68, 2],
+        pretrained_weight_path: str = None
     ):
         super().__init__()
 
@@ -37,13 +38,29 @@ class FilterResnet(torch.nn.Module):
         if not supported:
             print('This model does not support')
             exit(1)
-        
-        
+
         self.model = model
         self.output_shape = output_shape
+
+        if pretrained_weight_path is not None:
+            self.load_state_dict(pretrained_weight_path= pretrained_weight_path)
+
+    def load_state_dict(self, pretrained_weight_path: str, strict: bool = True):
+        pretrained_weight = torch.load(pretrained_weight_path)
+        state_dict = pretrained_weight['model_state_dict']
+        return super().load_state_dict(state_dict, strict)
     
     def forward(self, x):
         return self.model(x).reshape(x.shape[0], self.output_shape[0], self.output_shape[1])
+
+    # def load_my_state_dict(self, state_dict):
+    #     own_state = self.model.state_dict()
+    #     for name, param in state_dict.items():
+    #         if name not in own_state:
+    #             continue
+    #         if isinstance(param, nn.Parameter):
+    #             param = param.data
+    #         own_state[name].copy_(param)
     
 if __name__ == '__main__':
     model = FilterResnet()

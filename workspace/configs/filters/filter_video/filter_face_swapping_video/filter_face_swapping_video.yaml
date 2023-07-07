@@ -1,0 +1,5 @@
+_target_: workspace.src.filters.filter_videos.filter_face_swapping_video.FilterFaceSwappingVideo
+
+filter_image: ${filters.filter_image.filter_face_swapping_image}
+
+output_folder: ${paths.output_video_dir}

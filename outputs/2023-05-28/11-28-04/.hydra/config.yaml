@@ -1,0 +1,6 @@
+_target_: workspace.src.filters.filter_images.filter_glasses_image.FilterGlassesImage
+model: ${model}
+transform: ${transform}
+image_folder: ${paths.input_image_dir}
+filter_name: eye_glasses.png
+device: cpu

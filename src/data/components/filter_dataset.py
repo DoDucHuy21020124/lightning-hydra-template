@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from src.data.components import utils_dataset
 import os
 import torch
+import torchvision
 
 class FilterDataset(data.Dataset):
     def __init__(
@@ -25,7 +26,7 @@ class FilterDataset(data.Dataset):
         data = utils_dataset.get_data(image_xml, data)
         self.data = data
 
-        self.x = self.data['file_path']
+        self.x = self.data['file_path'][:128]
 
         self.y = self.data['keypoints']
 
@@ -84,7 +85,7 @@ class FilterDataset(data.Dataset):
             image = Image.fromarray(image)
         draw = ImageDraw.Draw(image)
         for i in range(keypoints.shape[0]):
-            if keypoints[i][0] is not None and keypoints[i][1] is not None and keypoints[i][0] >= 0 and keypoints[i][0] <= width and keypoints[i][1] >= 0 and keypoints[i][1] <= height:
+            if keypoints[i][0] is not None and keypoints[i][1] is not None: # and keypoints[i][0] >= 0 and keypoints[i][0] <= width and keypoints[i][1] >= 0 and keypoints[i][1] <= height:
                 draw.ellipse((keypoints[i][0] - 2, keypoints[i][1] - 2, keypoints[i][0] + 2, keypoints[i][1] + 2), fill = (255, 255, 0))
         return image
 
@@ -128,30 +129,38 @@ if __name__ == '__main__':
         print(len(filter))
         x, y, box = filter[10]
         print(x.shape, y.shape)
-        
-        image1 = FilterDataset.draw_image_with_keypoints(
-            image = x,
-            keypoints = y,
-            width = x.shape[1],
-            height = x.shape[0],
-            normalize = False
-        )
-        plt.imshow(image1)
-        plt.show()
+        print(x.dtype)
 
-        image2 = filter.x[3]
-        image2 = Image.open(os.path.join(str(filter.data_dir), image2))
-        keypoints = filter.y[3]
-        box = filter.box[3]
-        image2 = FilterDataset.draw_image_with_keypoints_and_boundingbox(
-            image = image2,
-            box = box,
-            keypoints = keypoints,
-            width = image2.size[1],
-            height = image2.size[0],
-            normalize = False
-        )
-        plt.imshow(image2)
-        plt.show()
+        image = Image.fromarray(x)
+        
+        
+        # image1 = FilterDataset.draw_image_with_keypoints(
+        #     image = x,
+        #     keypoints = y,
+        #     width = x.shape[1],
+        #     height = x.shape[0],
+        #     normalize = False
+        # )
+        # print(image1)
+        # image1 = np.array(image1)
+        # print(image1.dtype)
+        # plt.imshow(image1)
+        # plt.show()
+
+        # image2 = filter.x[3]
+        # image2 = Image.open(os.path.join(str(filter.data_dir), image2))
+        # keypoints = filter.y[3]
+        # box = filter.box[3]
+        # image2 = FilterDataset.draw_image_with_keypoints_and_boundingbox(
+        #     image = image2,
+        #     box = box,
+        #     keypoints = keypoints,
+        #     width = image2.size[1],
+        #     height = image2.size[0],
+        #     normalize = False
+        # )
+        # print(image2)
+        # plt.imshow(image2)
+        # plt.show()
     main()
     #_ = FilterDataset()

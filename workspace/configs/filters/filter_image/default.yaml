@@ -1,0 +1,4 @@
+defaults:
+  - filter_glasses_image: filter_glasses_image.yaml
+  - filter_face_swapping_image: filter_face_swapping_image.yaml
+  - _self_

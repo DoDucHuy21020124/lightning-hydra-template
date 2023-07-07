@@ -1,0 +1,18 @@
+_target_: workspace.src.filters.filter_images.filter_face_swapping_image.FilterFaceSwappingImage
+
+# defaults:
+#   - model: filter_resnet.yaml
+#   - transform: filter_transform.yaml
+#   - _self_
+
+model: ${model}
+
+transform: ${transform}
+
+image_folder: ${paths.input_image_dir}
+
+csv_folder: ${paths.input_csv_dir}
+
+face1_csv: 'le_hai_lam.csv'
+
+device: 'cpu'

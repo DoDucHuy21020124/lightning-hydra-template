@@ -1,0 +1,11 @@
+paths:
+  root_dir: ${oc.env:PROJECT_ROOT}
+  workspace_dir: ${paths.root_dir}/workspace
+  input_image_dir: ${paths.workspace_dir}/inputs/images
+  input_video_dir: ${paths.workspace_dir}/inputs/videos
+  output_image_dir: ${paths.workspace_dir}/outputs/images
+  output_video_dir: ${paths.workspace_dir}/outputs/videos
+  filters_dir: ${paths.input_image_dir}/filters
+  input_csv_dir: ${paths.workspace_dir}/inputs/csv_files
+  pretrained_weight_dir: ${paths.workspace_dir}/inputs/pretrained_weights
+_recursive_: true

@@ -1,0 +1,26 @@
+model:
+  _target_: workspace.src.model.filter_resnet.FilterResnet
+  model_name: resnet50
+  weights: DEFAULT
+  output_shape:
+  - 68
+  - 2
+  pretrained_weight_path: ${paths.pretrained_weight_dir}/weight_resnet50_1.pt
+transform:
+  _target_: workspace.src.filters.utils.transform_workspace.MyTransform
+  transform: null
+  height: 224
+  width: 224
+  mean:
+  - 0.485
+  - 0.456
+  - 0.406
+  std:
+  - 0.229
+  - 0.224
+  - 0.225
+_target_: workspace.src.filters.filter_images.filter_face_swapping_image.FilterFaceSwappingImage
+image_folder: ${paths.input_image_dir}
+csv_folder: ${paths.input_csv_dir}
+face1_csv: le_hai_lam.csv
+device: cpu

@@ -1,0 +1,4 @@
+defaults:
+  - filter_face_swapping_video: filter_face_swapping_video.yaml
+  - filter_glasses_video: filter_glasses_video.yaml
+  - _self_
